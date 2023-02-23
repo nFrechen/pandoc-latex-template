@@ -594,14 +594,110 @@ $else$
 $endif$
 
 %
+% notification box
+%
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{notification}[1][]{enhanced,
+  before skip=2mm,after skip=3mm,
+  boxrule=0.4pt,left=5mm,right=2mm,top=1mm,bottom=1mm,
+  colback=yellow!50,
+  colframe=yellow!20!black,
+  sharp corners,rounded corners=southeast,arc is angular,arc=3mm,
+  underlay={%
+    \path[fill=tcbcolback!80!black] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+    \path[draw=tcbcolframe,shorten <=-0.05mm,shorten >=-0.05mm] ([yshift=3mm]interior.south east)--++(-0.4,-0.1)--++(0.1,-0.2);
+    \path[fill=yellow!50!black,draw=none] (interior.south west) rectangle node[white]{\Huge\bfseries !} ([xshift=4mm]interior.north west);
+    },
+  drop fuzzy shadow,#1}
+
+%
 % blockquote
 %
 \definecolor{blockquote-border}{RGB}{221,221,221}
 \definecolor{blockquote-text}{RGB}{119,119,119}
 \usepackage{mdframed}
 \newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=\parskip]{customblockquote}
-\renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
-\item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+%\renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
+%\item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+\renewenvironment{quote}{
+  \begin{notification}
+}{
+  \end{notification}
+}
+
+%
+% Keyboard shortcuts, filepaths, etc.
+%
+
+\usepackage[os=$if(os)$$os$$else$win$endif$]{menukeys}
+\renewmenumacro{\directory}[/]{pathswithblackfolder}
+
+% styling can be changed with:
+%\renewmenumacro{\keys}[+]{shadowedroundedkeys}
+%\renewmenumacro{\menus}[>]{roundedmenus}
+
+%
+% commandbox
+%
+
+\NewTotalTCBox{\commandbox}{ s v } {verbatim,colupper=white,colback=black!75!white,colframe=black} {\IfBooleanT{#1}{\textcolor{red}{\ttfamily\bfseries > }}%
+     \lstinline[language=command.com,keywordstyle=\color{blue!35!white}\bfseries]^#2^}
+
+%
+% shaded code blocks
+%
+\ifx\Shaded\undefined
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\fi
+
+\renewenvironment{Shaded}{
+    \begin{tcolorbox}[%
+        enhanced jigsaw,
+        breakable,
+        colframe=black!20!white,
+        bottomrule=0.3mm,
+        toprule=0.3mm,
+        rightrule=0.3mm,
+        leftrule=0.3mm,
+        bottomrule at break=3mm,
+        pad at break=5mm
+        ]
+}
+{
+    \end{tcolorbox}
+}
+
+%
+% verbatim output
+%
+
+\BeforeBeginEnvironment{verbatim}{%
+  \begin{tcolorbox}[%
+        enhanced jigsaw,
+        breakable,
+        colframe=black!20!white,
+        bottomrule=0.3mm,
+        toprule=0.3mm,
+        rightrule=0.3mm,
+        leftrule=0.3mm,
+        bottomrule at break=3mm,
+        pad at break=5mm
+        ]
+  \begin{small}
+}
+\AfterEndEnvironment{verbatim}{%
+  \end{small}
+  \end{tcolorbox}
+}
+
+
+%
+% inline code
+%
+\let\oldtexttt=\texttt
+\renewcommand{\texttt}[1]{\tcbox[on line, boxsep=0pt,left=2pt,right=2pt,top=2pt,bottom=2pt, colframe=black!20!white, boxrule=0mm]{\begin{small}\oldtexttt{#1}\end{small}}}
+
 
 %
 % Source Sans Pro as the de­fault font fam­ily
@@ -844,6 +940,9 @@ $else$
 $if(disable-header-and-footer)$
 $else$
 \usepackage[headsepline,footsepline]{scrlayer-scrpage}
+
+\KOMAoptions{headwidth=\textwidth+2cm:-1cm}
+\KOMAoptions{footwidth=\textwidth+2cm:-1cm}
 
 \newpairofpagestyles{eisvogel-header-footer}{
   \clearpairofpagestyles
